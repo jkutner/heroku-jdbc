@@ -5,6 +5,27 @@ turning it into a JDBC connection.
 
 ### Usage
 
+In your `pom.xml`:
+
+```xml
+<repositories>
+  <repository>
+    <snapshots>
+      <enabled>false</enabled>
+    </snapshots>
+    <id>bintray-heroku-maven</id>
+    <name>bintray</name>
+    <url>http://dl.bintray.com/heroku/maven</url>
+  </repository>
+</repositories>
+...
+<dependency>
+  <groupId>com.heroku.sdk</groupId>
+  <artifactId>heroku-jdbc</artifactId>
+  <version>${heroku-jdbc.version}</version>
+</dependency>
+```
+
 For PostgreSQL (the default):
 
 ```java
