@@ -1,4 +1,4 @@
-## Heroku JDBC
+## Heroku JDBC [ ![Download](https://api.bintray.com/packages/heroku/maven/jdbc/images/download.svg) ](https://bintray.com/heroku/maven/jdbc/_latestVersion)
 
 This is a helper library for parsing `DATABASE_URL` from the environment and
 turning it into a JDBC connection.
