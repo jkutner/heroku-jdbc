@@ -12,15 +12,26 @@ public class DatabaseUrl {
 
   private URI dbUri;
 
+  private Boolean local;
+
   public static DatabaseUrl extract() throws URISyntaxException {
     return extract("DATABASE_URL");
   }
 
   public static DatabaseUrl extract(String envVar) throws URISyntaxException {
-    return new DatabaseUrl(envVar);
+    return extract(envVar, false);
   }
 
-  public DatabaseUrl(String envVar) throws URISyntaxException {
+  public static DatabaseUrl extract(Boolean local) throws URISyntaxException {
+    return extract("DATABASE_URL", local);
+  }
+
+  public static DatabaseUrl extract(String envVar, Boolean local) throws URISyntaxException {
+    return new DatabaseUrl(envVar, local);
+  }
+
+  public DatabaseUrl(String envVar, Boolean local) throws URISyntaxException {
+    this.local = local;
     this.dbStr = System.getenv(envVar);
     if (this.dbStr == null || this.dbStr.isEmpty()) {
       throw new IllegalArgumentException("Could not find value for " + envVar);
@@ -38,7 +49,11 @@ public class DatabaseUrl {
 
   public String password() {
     if (dbUri.getUserInfo() != null) {
-      return dbUri.getUserInfo().split(":")[1];
+      if (dbUri.getUserInfo().split(":").length > 1) {
+        return dbUri.getUserInfo().split(":")[1];
+      } else {
+        return "";
+      }
     } else {
       return null;
     }
@@ -61,7 +76,8 @@ public class DatabaseUrl {
   }
 
   public String jdbcUrl(String subProtocol) {
-    return "jdbc:" + subProtocol + host() + ':' + port() + path();
+    return "jdbc:" + subProtocol + host() + ':' + port() + path() +
+      (local ? "?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory" : "");
   }
 
   public Connection getConnection() throws SQLException {
@@ -70,9 +86,9 @@ public class DatabaseUrl {
 
   public Connection getConnection(String subProtocol) throws SQLException {
     if (username() != null) {
-      return DriverManager.getConnection(jdbcUrl(), username(), password());
+      return DriverManager.getConnection(jdbcUrl(subProtocol), username(), password());
     } else {
-      return DriverManager.getConnection(jdbcUrl());
+      return DriverManager.getConnection(jdbcUrl(subProtocol));
     }
   }
 }
